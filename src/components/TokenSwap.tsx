@@ -1,6 +1,8 @@
 // src/components/TokenSwap.tsx
 import React, { useState } from 'react';
 import { useWeb3 } from '../context/Web3Context';
+import { ethers } from 'ethers';
+import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const TokenSwap: React.FC = () => {
   const { mtkContract, ankContract } = useWeb3();
@@ -9,20 +11,54 @@ const TokenSwap: React.FC = () => {
   const [isMtkToAnk, setIsMtkToAnk] = useState(true);
 
   const handleApprove = async () => {
-    if (isMtkToAnk && mtkContract) {
-      const tx = await mtkContract.approve(/* spender address */, ethers.utils.parseUnits(swapAmount, 18));
-      await tx.wait();
-      setIsApproved(true);
-    } else if (ankContract) {
-      const tx = await ankContract.approve(/* spender address */, ethers.utils.parseUnits(swapAmount, 18));
-      await tx.wait();
-      setIsApproved(true);
+    try {
+      if (!mtkContract) throw new Error("MTK contract is not initialized");
+
+      const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK; // Set the spender address based on the swap direction
+
+      // Use the entered swap amount and parse it to the correct decimal format (uint256 with 18 decimals)
+      const amountToApprove = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
+
+      // Call the approve function with spender address and amount
+      const transaction = await mtkContract.approve(spenderAddress, amountToApprove);
+      await transaction.wait(); // Wait for the transaction to be confirmed
+      setIsApproved(true); // Update the approval state
+      console.log("Approval successful");
+    } catch (error) {
+      console.error("Error approving tokens:", error);
     }
   };
 
   const handleSwap = async () => {
     if (isApproved) {
-      // Execute swap logic between MTK and ANK tokens
+      try {
+        if (!mtkContract || !ankContract) throw new Error("Contracts are not initialized");
+
+        const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
+        
+        // Optional: Check if the amount to swap is valid (greater than zero)
+        // if (amountToSwap.isZero()) {
+        //   console.error("Swap amount must be greater than zero");
+        //   return;
+        // }
+
+        // Call the swap function (replace with your actual swap function)
+        let transaction;
+        if (isMtkToAnk) {
+          // Assume you have a function called swapMTKToANK in your smart contract
+          transaction = await mtkContract.swapMTKToANK(amountToSwap); // Adjust this line to match your contract function
+        } else {
+          // Assume you have a function called swapANKToMTK in your smart contract
+          transaction = await ankContract.swapANKToMTK(amountToSwap); // Adjust this line to match your contract function
+        }
+
+        await transaction.wait(); // Wait for the transaction to be confirmed
+        console.log("Swap successful");
+        setSwapAmount(''); // Clear the input field after swap
+        setIsApproved(false); // Reset approval status if necessary (depends on your UX)
+      } catch (error) {
+        console.error("Error swapping tokens:", error);
+      }
     }
   };
 

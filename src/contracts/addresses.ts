@@ -1,6 +1,6 @@
 // src/contracts/addresses.ts
 export const CONTRACT_ADDRESSES = {
-    MTK: "0xYourMTKContractAddress",
-    ANK: "0xYourANKContractAddress"
+    MTK: "0x487697BA791CD4dEd7A9C6769915c55E71bECEA0",
+    ANK: "0xe5806B516d9609F34C07a57dE45bEE5E168Af6A9"
   };
   
