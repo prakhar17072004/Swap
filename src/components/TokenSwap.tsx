@@ -5,7 +5,7 @@ import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const TokenSwap: React.FC = () => {
-  const { mtkContract, ankContract } = useWeb3();
+  const { swapContract,mtkContract, ankContract } = useWeb3();
   const [swapAmount, setSwapAmount] = useState<string>('');
   const [isApproved, setIsApproved] = useState(false);
   const [isMtkToAnk, setIsMtkToAnk] = useState(true);
@@ -46,10 +46,10 @@ const TokenSwap: React.FC = () => {
         let transaction;
         if (isMtkToAnk) {
           // Assume you have a function called swapMTKToANK in your smart contract
-          transaction = await mtkContract.swapMTKToANK(amountToSwap); // Adjust this line to match your contract function
+          transaction = await swapContract.swapToken1ForToken2(amountToSwap); // Adjust this line to match your contract function
         } else {
           // Assume you have a function called swapANKToMTK in your smart contract
-          transaction = await ankContract.swapANKToMTK(amountToSwap); // Adjust this line to match your contract function
+          transaction = await swapContract.swapToken2ForToken1(amountToSwap); // Adjust this line to match your contract function
         }
 
         await transaction.wait(); // Wait for the transaction to be confirmed
