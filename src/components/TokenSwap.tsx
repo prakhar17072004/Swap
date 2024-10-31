@@ -77,7 +77,7 @@ const TokenSwap: React.FC = () => {
         value={swapAmount}
         onChange={(e) => setSwapAmount(e.target.value)}
         className="w-full px-4 py-2 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-        placeholder="Enter amount to swap"
+        placeholder={!isApproved ? `Enter amount to approve` : `Enter amount to swap`}
       />
       {!isApproved ? (
         <button onClick={handleApprove} className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
