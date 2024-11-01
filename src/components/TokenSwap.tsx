@@ -29,38 +29,38 @@ const TokenSwap: React.FC = () => {
     }
   };
 
-  // const handleSwap = async () => {
-  //   if (isApproved) {
-  //     try {
-  //       if (!mtkContract || !ankContract) throw new Error("Contracts are not initialized");
+  const handleSwap = async () => {
+    if (isApproved) {
+      try {
+        if (!mtkContract || !ankContract) throw new Error("Contracts are not initialized");
 
-  //       const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
+        const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
         
-  //       // Optional: Check if the amount to swap is valid (greater than zero)
-  //       // if (amountToSwap.isZero()) {
-  //       //   console.error("Swap amount must be greater than zero");
-  //       //   return;
-  //       // }
+        // Optional: Check if the amount to swap is valid (greater than zero)
+        // if (amountToSwap.isZero()) {
+        //   console.error("Swap amount must be greater than zero");
+        //   return;
+        // }
 
-  //       // Call the swap function (replace with your actual swap function)
-  //       let transaction;
-  //       if (isMtkToAnk) {
-  //         // Assume you have a function called swapMTKToANK in your smart contract
-  //         transaction = await swapContract.swapToken1ForToken2(amountToSwap); // Adjust this line to match your contract function
-  //       } else {
-  //         // Assume you have a function called swapANKToMTK in your smart contract
-  //         transaction = await swapContract.swapToken2ForToken1(amountToSwap); // Adjust this line to match your contract function
-  //       }
+        // Call the swap function (replace with your actual swap function)
+        let transaction;
+        if (isMtkToAnk) {
+          // Assume you have a function called swapMTKToANK in your smart contract
+          transaction = await swapContract.swapToken1ForToken2(amountToSwap); // Adjust this line to match your contract function
+        } else {
+          // Assume you have a function called swapANKToMTK in your smart contract
+          transaction = await swapContract.swapToken2ForToken1(amountToSwap); // Adjust this line to match your contract function
+        }
 
-  //       await transaction.wait(); // Wait for the transaction to be confirmed
-  //       console.log("Swap successful");
-  //       setSwapAmount(''); // Clear the input field after swap
-  //       setIsApproved(false); // Reset approval status if necessary (depends on your UX)
-  //     } catch (error) {
-  //       console.error("Error swapping tokens:", error);
-  //     }
-  //   }
-  // };
+        await transaction.wait(); // Wait for the transaction to be confirmed
+        console.log("Swap successful");
+        setSwapAmount(''); // Clear the input field after swap
+        setIsApproved(false); // Reset approval status if necessary (depends on your UX)
+      } catch (error) {
+        console.error("Error swapping tokens:", error);
+      }
+    }
+  };
 
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
