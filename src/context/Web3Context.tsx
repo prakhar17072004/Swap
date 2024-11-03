@@ -86,10 +86,10 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   );
 };
 
-// export const useWeb3 = () => {
-//   const context = useContext(Web3Context);
-//   if (!context) {
-//     throw new Error('useWeb3 must be used within a Web3Provider');
-//   }
-//   return context;
-// };
+export const useWeb3 = () => {
+  const context = useContext(Web3Context);
+  if (!context) {
+    throw new Error('useWeb3 must be used within a Web3Provider');
+  }
+  return context;
+};
