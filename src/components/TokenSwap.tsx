@@ -33,7 +33,7 @@ const TokenSwap: React.FC = () => {
   const handleSwap = async () => {
     if (isApproved) {
       try {
-        if (!mtkContract || !ankContract) throw new Error("Contracts are not initialized");
+        if (!swapContract) throw new Error("Contracts are not initialized");
 
         const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
         
