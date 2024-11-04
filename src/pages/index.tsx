@@ -4,15 +4,15 @@ import { FiUser } from 'react-icons/fi';  // Import user icon
 import TokenSwap from '../components/TokenSwap';
 
 const HOME_NETWORK_PARAMS = {
-  chainId: '17000', // Chain ID in hexadecimal for Holesky
-  chainName: 'Holesky ',
-  rpcUrls: ['https://rpc.holesky.testnet'],
+  chainId: '17000', // Chain ID for Holesky in hexadecimal
+  chainName: 'Holesky Test Network',
+  rpcUrls: ['https://rpc.ankr.com/eth_holesky'],
   nativeCurrency: {
     name: 'Holesky Ether',
-    symbol: 'HETH', // Symbol for Holesky Ether
+    symbol: 'ETH', // Symbol for Holesky Ether
     decimals: 18,
   },
-  blockExplorerUrls: ['https://explorer.holesky.testnet'], // Optional
+  blockExplorerUrls: ['https://holesky.etherscan.io/'], // Optional
 };
 
 const Home: React.FC = () => {
@@ -23,7 +23,7 @@ const Home: React.FC = () => {
 
   // Connect to Metamask with Delay
   const connectWallet = async () => {
-    if (window.ethereum) {
+    if (typeof window.ethereum !== 'undefined') {
       setLoading(true); // Start loading
       
       // Simulate delay
@@ -33,20 +33,23 @@ const Home: React.FC = () => {
           
           // Check if the wallet is connected to the correct network
           const network = await provider.getNetwork();
-          if (network.chainId !== parseInt(HOME_NETWORK_PARAMS.chainId, 16)) {
+          const expectedChainId = BigInt(HOME_NETWORK_PARAMS.chainId);
+          if (network.chainId !== expectedChainId) {
             // Request to switch to Holesky network
             try {
-              await window.ethereum.request({
+              await (window.ethereum as any).request({
                 method: 'wallet_addEthereumChain',
                 params: [HOME_NETWORK_PARAMS],
-              });
+              })
             } catch (switchError) {
               console.error('Failed to switch to Holesky network', switchError);
+              alert('Failed to switch to Holesky network. Please check your wallet settings.');
               setLoading(false);
               return;
             }
           }
 
+          // Request accounts
           await provider.send("eth_requestAccounts", []);
           setProvider(provider);
 
@@ -60,6 +63,7 @@ const Home: React.FC = () => {
           setBalance(formattedBalance);
         } catch (error) {
           console.error("Error connecting to Metamask", error);
+          alert('Error connecting to Metamask. Please ensure you have it installed and set up correctly.');
         } finally {
           setLoading(false); // Stop loading after delay
         }

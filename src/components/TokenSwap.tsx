@@ -1,18 +1,19 @@
-// src/components/TokenSwap.tsx
 import React, { useState } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const TokenSwap: React.FC = () => {
-  const { swapContract,mtkContract, ankContract } = useWeb3();
+  const { swapContract, mtkContract, ankContract } = useWeb3();
   const [swapAmount, setSwapAmount] = useState<string>('');
   const [isApproved, setIsApproved] = useState(false);
   const [isMtkToAnk, setIsMtkToAnk] = useState(true);
 
   const handleApprove = async () => {
     try {
-      if (!mtkContract) throw new Error("MTK contract is not initialized");
+      const contractToApprove = isMtkToAnk ? mtkContract : ankContract; // Choose the appropriate contract based on direction
+
+      if (!contractToApprove) throw new Error("Contract is not initialized");
 
       const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK; // Set the spender address based on the swap direction
 
@@ -20,7 +21,7 @@ const TokenSwap: React.FC = () => {
       const amountToApprove = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
 
       // Call the approve function with spender address and amount
-      const transaction = await mtkContract.approve(spenderAddress, amountToApprove);
+      const transaction = await contractToApprove.approve(spenderAddress, amountToApprove);
       await transaction.wait(); // Wait for the transaction to be confirmed
       setIsApproved(true); // Update the approval state
       console.log("Approval successful");
@@ -36,19 +37,13 @@ const TokenSwap: React.FC = () => {
 
         const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
         
-        // Optional: Check if the amount to swap is valid (greater than zero)
-        // if (amountToSwap.isZero()) {
-        //   console.error("Swap amount must be greater than zero");
-        //   return;
-        // }
-
-        // Call the swap function (replace with your actual swap function)
+        // Call the swap function
         let transaction;
         if (isMtkToAnk) {
-          // Assume you have a function called swapMTKToANK in your smart contract
+          // Swap from MTK to ANK
           transaction = await swapContract.swapToken1ForToken2(amountToSwap); // Adjust this line to match your contract function
         } else {
-          // Assume you have a function called swapANKToMTK in your smart contract
+          // Swap from ANK to MTK
           transaction = await swapContract.swapToken2ForToken1(amountToSwap); // Adjust this line to match your contract function
         }
 
