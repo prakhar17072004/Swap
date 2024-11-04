@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { ethers } from 'ethers';
-//import logo from "../assets/logo.png"
+import { FiUser } from 'react-icons/fi';  // Import user icon
 import TokenSwap from '../components/TokenSwap';
+
+const HOME_NETWORK_PARAMS = {
+  chainId: '17000', // Chain ID in hexadecimal for Holesky
+  chainName: 'Holesky ',
+  rpcUrls: ['https://rpc.holesky.testnet'],
+  nativeCurrency: {
+    name: 'Holesky Ether',
+    symbol: 'HETH', // Symbol for Holesky Ether
+    decimals: 18,
+  },
+  blockExplorerUrls: ['https://explorer.holesky.testnet'], // Optional
+};
 
 const Home: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
@@ -18,6 +30,23 @@ const Home: React.FC = () => {
       setTimeout(async () => {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum as any);
+          
+          // Check if the wallet is connected to the correct network
+          const network = await provider.getNetwork();
+          if (network.chainId !== parseInt(HOME_NETWORK_PARAMS.chainId, 16)) {
+            // Request to switch to Holesky network
+            try {
+              await window.ethereum.request({
+                method: 'wallet_addEthereumChain',
+                params: [HOME_NETWORK_PARAMS],
+              });
+            } catch (switchError) {
+              console.error('Failed to switch to Holesky network', switchError);
+              setLoading(false);
+              return;
+            }
+          }
+
           await provider.send("eth_requestAccounts", []);
           setProvider(provider);
 
@@ -57,15 +86,9 @@ const Home: React.FC = () => {
         {walletAddress ? (
           <div className="flex items-center space-x-4">
             {/* Icon next to the address */}
-            <img
-          src="../"
-          alt="Logo"
-          className="border-4 rounded-full p-3 border-green-400"
-          width={40}  // Adjust size as needed
-          height={40} // Adjust size as needed
-        />
+            <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} /> 
             <span className="text-gray-700"><span className='text-xl'>Address:</span> {formatAddress(walletAddress)}</span>
-            <span className="text-gray-700"><span className='text-xl'>Balance:</span>  {balance} ETH</span>
+            <span className="text-gray-700"><span className='text-xl'>Balance:</span>  {balance} HETH</span>
             <button onClick={disconnectWallet} className="bg-red-500 text-white px-4 py-2 rounded">
               Disconnect
             </button>
