@@ -107,11 +107,11 @@ const Home: React.FC = () => {
       </div>
 
       {/* Token Swap Component or Connect Message */}
-      {walletAddress ? (
+     
         <TokenSwap />
-      ) : (
-        <div className="text-gray-700 text-xl mt-10">Please connect the wallet to use the token swap feature.</div>
-      )}
+      
+        
+     
     </div>
   );
 };
