@@ -101,18 +101,35 @@ const TokenSwap: React.FC = () => {
       <h2 className="text-center text-2xl font-semibold mb-4">Token Swap</h2>
 
       <div className="flex flex-col justify-between items-center mb-4">
-        <span className='p-4'>{isMtkToAnk ? 'MTK' : 'ANK'} Balance: {mtkBalance}</span>
+        <div className='flex flex-col outline'>
+        <span className='p-4'>{isMtkToAnk ? 'MTK' : 'ANK'} 
+        <input
+        type="text"
+        pattern='^[0-9]*[.,]?[0-9]*$'
+        inputMode='decimal'
+        value={swapAmount}
+        onChange={handleAmountChange}
+        className=" px-2  py-2 mb-4 w-[300px] rounded-lg text-right outline-none"
+        placeholder="0"
+      />
+        </span>
+        <span>
+        Balance: {mtkBalance}
+        </span>
+        </div>
         <button onClick={() => setIsMtkToAnk(!isMtkToAnk)} className="px-2 py-1 bg-gray-200 rounded-lg text-xl">
           <CgArrowsExchangeAltV />
         </button>
-        <div className='flex flex-col'>
-        <span className='p-4 text-lg font-bold '>{isMtkToAnk ? 'ANK' : 'MTK'} 
+        <div className='flex flex-col outline'>
+        <span className='p-4  text-lg font-bold '>{isMtkToAnk ? 'ANK' : 'MTK'} 
         <input
-        type="number"
+        type="text"
+        pattern='^[0-9]*[.,]?[0-9]*$'
+        inputMode='decimal'
         value={swapAmount}
         onChange={handleAmountChange}
-        className=" px-4 py-2 mb-4 w-[10px] rounded-lg  outline-none"
-        //placeholder={!isApproved ? `Enter amount to approve` : `Enter amount to swap`}
+        className=" px-2  py-2 mb-4 w-[300px] rounded-lg text-right outline-none"
+        placeholder="0"
       />
         </span>
         <span>Balance: {ankBalance}</span>
