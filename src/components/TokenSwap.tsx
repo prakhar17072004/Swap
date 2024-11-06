@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
+import { CgArrowsExchangeAltV } from "react-icons/cg";
 
 const TokenSwap: React.FC = () => {
   const { swapContract, mtkContract, ankContract } = useWeb3();
@@ -60,12 +61,12 @@ const TokenSwap: React.FC = () => {
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
       <h2 className="text-center text-2xl font-semibold mb-4">Token Swap</h2>
-      <div className="flex justify-between items-center mb-4">
-        <span>{isMtkToAnk ? 'MTK' : 'ANK'}</span>
-        <button onClick={() => setIsMtkToAnk(!isMtkToAnk)} className="px-2 py-1 bg-gray-200 rounded-lg">
-          ⇄
+      <div className="flex flex-col justify-between items-center mb-4">
+        <span className='p-4 '>{isMtkToAnk ? 'MTK' : 'ANK'}</span>
+        <button onClick={() => setIsMtkToAnk(!isMtkToAnk)} className="px-2 py-1 bg-gray-200 rounded-lg text-xl">
+        <CgArrowsExchangeAltV />
         </button>
-        <span>{isMtkToAnk ? 'ANK' : 'MTK'}</span>
+        <span className='p-4'>{isMtkToAnk ? 'ANK' : 'MTK'}</span>
       </div>
       <input
         type="number"
