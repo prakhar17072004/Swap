@@ -1,29 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWeb3 } from '../context/Web3Context';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 
 const TokenSwap: React.FC = () => {
-  const { swapContract, mtkContract, ankContract } = useWeb3();
+  const { swapContract, mtkContract, ankContract, account } = useWeb3(); // Ensure 'account' is available
   const [swapAmount, setSwapAmount] = useState<string>('');
   const [isApproved, setIsApproved] = useState(false);
   const [isMtkToAnk, setIsMtkToAnk] = useState(true);
+  const [mtkBalance, setMtkBalance] = useState<string>('0');
+  const [ankBalance, setAnkBalance] = useState<string>('0');
+
+  useEffect(() => {
+    const fetchBalances = async () => {
+      try {
+        if (!account || !mtkContract || !ankContract) return;
+
+        const [mtkBal, ankBal] = await Promise.all([
+          mtkContract.balanceOf(account),
+          ankContract.balanceOf(account)
+        ]);
+
+        setMtkBalance(ethers.formatUnits(mtkBal, 18));
+        setAnkBalance(ethers.formatUnits(ankBal, 18));
+      } catch (error) {
+        console.error("Error fetching token balances:", error);
+      }
+    };
+
+    fetchBalances();
+  }, [account, mtkContract, ankContract]);
 
   const handleApprove = async () => {
     try {
-      const contractToApprove = isMtkToAnk ? mtkContract : ankContract; // Choose the appropriate contract based on direction
-
+      const contractToApprove = isMtkToAnk ? mtkContract : ankContract;
       if (!contractToApprove) throw new Error("Contract is not initialized");
 
-      const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK; // Set the spender address based on the swap direction
+      const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
+      const amountToApprove = ethers.parseUnits(swapAmount, 18);
 
-      // Use the entered swap amount and parse it to the correct decimal format (uint256 with 18 decimals)
-      const amountToApprove = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
-
-      // Call the approve function with spender address and amount
       const transaction = await contractToApprove.approve(spenderAddress, amountToApprove);
-      await transaction.wait(); // Wait for the transaction to be confirmed
-      setIsApproved(true); // Update the approval state
+      await transaction.wait();
+      setIsApproved(true);
       console.log("Approval successful");
     } catch (error) {
       console.error("Error approving tokens:", error);
@@ -35,22 +53,18 @@ const TokenSwap: React.FC = () => {
       try {
         if (!swapContract) throw new Error("Contracts are not initialized");
 
-        const amountToSwap = ethers.parseUnits(swapAmount, 18); // Convert the user input amount to 18 decimals
-        
-        // Call the swap function
+        const amountToSwap = ethers.parseUnits(swapAmount, 18);
         let transaction;
         if (isMtkToAnk) {
-          // Swap from MTK to ANK
-          transaction = await swapContract.swapToken1ForToken2(amountToSwap); // Adjust this line to match your contract function
+          transaction = await swapContract.swapToken1ForToken2(amountToSwap);
         } else {
-          // Swap from ANK to MTK
-          transaction = await swapContract.swapToken2ForToken1(amountToSwap); // Adjust this line to match your contract function
+          transaction = await swapContract.swapToken2ForToken1(amountToSwap);
         }
 
-        await transaction.wait(); // Wait for the transaction to be confirmed
+        await transaction.wait();
         console.log("Swap successful");
-        setSwapAmount(''); // Clear the input field after swap
-        setIsApproved(false); // Reset approval status if necessary (depends on your UX)
+        setSwapAmount('');
+        setIsApproved(false);
       } catch (error) {
         console.error("Error swapping tokens:", error);
       }
@@ -60,6 +74,12 @@ const TokenSwap: React.FC = () => {
   return (
     <div className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
       <h2 className="text-center text-2xl font-semibold mb-4">Token Swap</h2>
+      <div className="mb-4">
+        <div className="flex justify-between items-center">
+          <span>MTK Balance: {mtkBalance}</span>
+          <span>ANK Balance: {ankBalance}</span>
+        </div>
+      </div>
       <div className="flex justify-between items-center mb-4">
         <span>{isMtkToAnk ? 'MTK' : 'ANK'}</span>
         <button onClick={() => setIsMtkToAnk(!isMtkToAnk)} className="px-2 py-1 bg-gray-200 rounded-lg">

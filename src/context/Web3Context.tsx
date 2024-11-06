@@ -1,5 +1,5 @@
 // src/context/Web3Context.tsx
-import React, { useEffect, createContext, useContext, useState,ReactNode } from 'react';
+import React, { useEffect, createContext, useContext, useState, ReactNode } from 'react';
 import { ethers, Contract } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 import YourSwapContractABI from '../contracts/abis/SWAP.json';
@@ -10,17 +10,20 @@ interface Web3ContextType {
   swapContract: Contract | null;
   mtkContract: Contract | null;
   ankContract: Contract | null;
+  account: string | null;
 }
+
 interface Web3ProviderProps {
-  children: ReactNode; // Type for children
+  children: ReactNode;
 }
 
 const Web3Context = createContext<Web3ContextType | null>(null);
 
-export const Web3Provider: React.FC <Web3ProviderProps>= ({ children }) => {
+export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   const [swapContract, setSwapContract] = useState<Contract | null>(null);
   const [mtkContract, setMtkContract] = useState<Contract | null>(null);
   const [ankContract, setAnkContract] = useState<Contract | null>(null);
+  const [account, setAccount] = useState<string | null>(null);
 
   useEffect(() => {
     const initContracts = async () => {
@@ -36,6 +39,15 @@ export const Web3Provider: React.FC <Web3ProviderProps>= ({ children }) => {
         setSwapContract(swapContractInstance);
         setMtkContract(mtkContractInstance);
         setAnkContract(ankContractInstance);
+
+        // Fetch and set the user's account address
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setAccount(accounts[0]);
+
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', (accounts: string[]) => {
+          setAccount(accounts[0]);
+        });
       } else {
         console.error("Ethereum object doesn't exist!");
       }
@@ -45,7 +57,7 @@ export const Web3Provider: React.FC <Web3ProviderProps>= ({ children }) => {
   }, []);
 
   return (
-    <Web3Context.Provider value={{ swapContract, mtkContract, ankContract }}>
+    <Web3Context.Provider value={{ swapContract, mtkContract, ankContract, account }}>
       {children}
     </Web3Context.Provider>
   );
