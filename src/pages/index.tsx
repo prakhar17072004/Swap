@@ -84,7 +84,7 @@ const Home: React.FC = () => {
   const formatAddress = (address: string) => `${address.slice(0, 6)}...${address.slice(-4)}`;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0A286B]">
       {/* Wallet Connection Info in Top-Right Corner */}
       <div className="absolute top-4 right-4 flex items-center space-x-4">
         {walletAddress ? (
