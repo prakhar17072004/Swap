@@ -78,6 +78,7 @@ const TokenSwap: React.FC = () => {
 
       const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
       const amountToApprove = ethers.parseUnits(swapAmount, 18);
+      
       const extraAmount = amountToApprove.sub(ethers.parseUnits(currentAllowance, 18));
 
       const transaction = await contractToApprove.approve(spenderAddress, extraAmount);
@@ -108,6 +109,8 @@ const TokenSwap: React.FC = () => {
         console.log("Swap successful");
         setSwapAmount('');
         setIsApproved(false);
+        // Refresh balances after swap
+        //fetchBalances();
       } catch (error) {
         console.error("Error swapping tokens:", error);
       }
@@ -117,16 +120,53 @@ const TokenSwap: React.FC = () => {
   return (
     <div className="max-w-md mx-auto p-4 bg-[#2B3162] rounded-lg shadow-lg">
       <h2 className="text-center text-3xl font-semibold mb-4 text-white">Token Swap</h2>
-      {/* UI elements */}
-      <div className="w-full px-4 py-2 mb-4 bg-[#131928] text-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500">
+      <div className="flex flex-col justify-between items-center mb-4">
+        <div className='flex flex-col border-2 border-slate-700 rounded-lg shadow-[#9747FF] shadow-md bg-[#131928]'>
+          <span className='p-4 font-bold text-white  rounded-lg'>{isMtkToAnk ? 'MTK' : 'ANK'} 
+            <input
+              type="text"
+              pattern='^[0-9]*[.,]?[0-9]*$'
+              inputMode='decimal'
+              value={swapAmount}
+              onChange={handleAmountChange}
+              className="px-2 py-2 mb-4 w-[300px] rounded-lg text-white text-right bg-[#131928] outline-none"
+              placeholder="0"
+            />
+          </span>
+          <span className='text-white bg-[#131928] -mt-[24px] mb-4 ml-4  text-slate-400'>
+            Balance: {isMtkToAnk ? mtkBalance : ankBalance}
+          </span>
+        </div>
+
+        <button onClick={() => setIsMtkToAnk(!isMtkToAnk)} className="px-2 py-1 bg-gray-200 rounded-lg text-xl">
+          <CgArrowsExchangeAltV />
+        </button>
+
+        <div className='flex flex-col  border-2 border-slate-700 text-white bg-[#131928] shadow-[#9747FF] shadow-md rounded-lg'>
+          <span className='p-4 text-lg font-bold rounded-lg'>{isMtkToAnk ? 'ANK' : 'MTK'}
+            <input
+              type="text"
+              pattern='^[0-9]*[.,]?[0-9]*$'
+              inputMode='decimal'
+              value={calculatedAmount}
+              readOnly
+              className="px-2 py-2 mb-4 w-[300px] rounded-lg text-white text-right bg-[#131928] outline-none"
+              placeholder="0"
+            />
+          </span>
+          <span className='text-white -mt-[24px] mb-4 ml-4 bg-[#131928] rounded-lg text-slate-400'>
+            Balance: {isMtkToAnk ? ankBalance : mtkBalance}
+          </span>
+        </div>
+      </div>
+
+      <div className="w-full px-4 py-2 mb-4 bg-[#131928] text-white border border-gray-300 rounded-lg">
         {loading ? (
           <p>Calculating...</p>
         ) : swapAmount === '' || parseFloat(swapAmount) <= 0 ? (
           <p className='text-white'>Enter amount to swap</p>
         ) : (
-          <p>
-            {swapAmount} {isMtkToAnk ? 'MTK' : 'ANK'} = {calculatedAmount} {isMtkToAnk ? 'ANK' : 'MTK'}
-          </p>
+          <p>{swapAmount} {isMtkToAnk ? 'MTK' : 'ANK'} = {calculatedAmount} {isMtkToAnk ? 'ANK' : 'MTK'}</p>
         )}
       </div>
 
