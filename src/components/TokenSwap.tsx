@@ -144,22 +144,25 @@ const TokenSwap: React.FC = () => {
   ) : swapAmount === '' || parseFloat(swapAmount) <= 0 ? (
     <p className=' text-white'>Enter amount to swap</p>
   ) : (
-    <p class>
+    <p >
       {swapAmount} {isMtkToAnk ? 'MTK' : 'ANK'} = {calculatedAmount} {isMtkToAnk ? 'ANK' : 'MTK'}
     </p>
   )}
 </div>
+ 
+ {!swapAmount?(
+  <button className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">Enter the amount</button>
+ ):(!isApproved ? (
+  <button onClick={handleApprove} className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+    Approve {isMtkToAnk ? 'MTK' : 'ANK'}
+  </button>
+) : (
+  <button onClick={handleSwap} className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+    Swap
+  </button>
+))}
 
-
-      {!isApproved ? (
-        <button onClick={handleApprove} className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
-          Approve {isMtkToAnk ? 'MTK' : 'ANK'}
-        </button>
-      ) : (
-        <button onClick={handleSwap} className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-          Swap
-        </button>
-      )}
+      
     </div>
   );
 };
