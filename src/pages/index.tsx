@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ethers } from 'ethers';
 import { FiUser } from 'react-icons/fi';
 import TokenSwap from '../components/TokenSwap';
@@ -20,6 +20,9 @@ const Home: React.FC = () => {
   const [balance, setBalance] = useState<string | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [dropdownOpen, setDropdownOpen] = useState<boolean>(false);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load wallet details from localStorage if available
   useEffect(() => {
@@ -31,21 +34,32 @@ const Home: React.FC = () => {
     }
   }, []);
 
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   // Connect to Metamask with Delay
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
-      setLoading(true); // Start loading
+      setLoading(true);
 
-      // Simulate delay
       setTimeout(async () => {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum as any);
 
-          // Check if the wallet is connected to the correct network
           const network = await provider.getNetwork();
           const expectedChainId = BigInt(HOME_NETWORK_PARAMS.chainId);
           if (network.chainId !== expectedChainId) {
-            // Request to switch to Holesky network
             try {
               await (window.ethereum as any).request({
                 method: 'wallet_addEthereumChain',
@@ -59,7 +73,6 @@ const Home: React.FC = () => {
             }
           }
 
-          // Request accounts
           await provider.send("eth_requestAccounts", []);
           setProvider(provider);
 
@@ -67,21 +80,19 @@ const Home: React.FC = () => {
           const address = await signer.getAddress();
           setWalletAddress(address);
 
-          // Get balance and format it to 2 decimal places
           const balance = await provider.getBalance(address);
           const formattedBalance = Number(ethers.formatEther(balance)).toFixed(2);
           setBalance(formattedBalance);
 
-          // Save wallet details in localStorage
           localStorage.setItem('walletAddress', address);
           localStorage.setItem('walletBalance', formattedBalance);
         } catch (error) {
           console.error("Error connecting to Metamask", error);
           alert('Error connecting to Metamask. Please ensure you have it installed and set up correctly.');
         } finally {
-          setLoading(false); // Stop loading after delay
+          setLoading(false);
         }
-      }, 2000); // 2-second delay
+      }, 2000);
     } else {
       alert("Please install Metamask!");
     }
@@ -92,7 +103,7 @@ const Home: React.FC = () => {
     setWalletAddress(null);
     setBalance(null);
     setProvider(null);
-    // Remove wallet details from localStorage
+    setDropdownOpen(false);
     localStorage.removeItem('walletAddress');
     localStorage.removeItem('walletBalance');
   };
@@ -105,14 +116,29 @@ const Home: React.FC = () => {
       {/* Wallet Connection Info in Top-Right Corner */}
       <div className="absolute top-4 right-4 flex items-center space-x-4">
         {walletAddress ? (
-          <div className="flex items-center space-x-4 border-4 border-black p-4  rounded-lg">
-            {/* Icon next to the address */}
-            <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} />
-            <span className="text-white outline"><span className='text-xl'>Address:</span> {formatAddress(walletAddress)}</span>
-            <span className="text-white"><span className='text-xl'>Balance:</span>  {balance} HETH</span>
-            <button onClick={disconnectWallet} className="bg-red-500 text-white px-4 py-2 rounded">
-              Disconnect
-            </button>
+          <div className="relative" ref={dropdownRef}>
+            <div
+              className="flex items-center space-x-4 cursor-pointer border-4 border-black rounded-lg p-4"
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} />
+              <span className="text-white"><span className="text-xl">Address:</span> {formatAddress(walletAddress)}</span>
+            </div>
+
+            {/* Dropdown Menu */}
+            {dropdownOpen && (
+              <div
+                className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg p-4 w-48 text-center"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.95)' }}
+              >
+                <button
+                  onClick={disconnectWallet}
+                  className="bg-red-500 text-white px-4 py-2 rounded w-full"
+                >
+                  Disconnect
+                </button>
+              </div>
+            )}
           </div>
         ) : loading ? (
           <div className="loader">Connecting...</div>
@@ -123,7 +149,7 @@ const Home: React.FC = () => {
         )}
       </div>
 
-      {/* Token Swap Component or Connect Message */}
+      {/* Token Swap Component */}
       <TokenSwap />
     </div>
   );
