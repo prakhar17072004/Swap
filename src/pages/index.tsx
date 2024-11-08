@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { FiUser } from 'react-icons/fi';  // Import user icon
+import { FiUser } from 'react-icons/fi';
 import TokenSwap from '../components/TokenSwap';
 
 const HOME_NETWORK_PARAMS = {
@@ -21,16 +21,26 @@ const Home: React.FC = () => {
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
 
+  // Load wallet details from localStorage if available
+  useEffect(() => {
+    const savedAddress = localStorage.getItem('walletAddress');
+    const savedBalance = localStorage.getItem('walletBalance');
+    if (savedAddress && savedBalance) {
+      setWalletAddress(savedAddress);
+      setBalance(savedBalance);
+    }
+  }, []);
+
   // Connect to Metamask with Delay
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       setLoading(true); // Start loading
-      
+
       // Simulate delay
       setTimeout(async () => {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum as any);
-          
+
           // Check if the wallet is connected to the correct network
           const network = await provider.getNetwork();
           const expectedChainId = BigInt(HOME_NETWORK_PARAMS.chainId);
@@ -40,7 +50,7 @@ const Home: React.FC = () => {
               await (window.ethereum as any).request({
                 method: 'wallet_addEthereumChain',
                 params: [HOME_NETWORK_PARAMS],
-              })
+              });
             } catch (switchError) {
               console.error('Failed to switch to Holesky network', switchError);
               alert('Failed to switch to Holesky network. Please check your wallet settings.');
@@ -61,6 +71,10 @@ const Home: React.FC = () => {
           const balance = await provider.getBalance(address);
           const formattedBalance = Number(ethers.formatEther(balance)).toFixed(2);
           setBalance(formattedBalance);
+
+          // Save wallet details in localStorage
+          localStorage.setItem('walletAddress', address);
+          localStorage.setItem('walletBalance', formattedBalance);
         } catch (error) {
           console.error("Error connecting to Metamask", error);
           alert('Error connecting to Metamask. Please ensure you have it installed and set up correctly.');
@@ -78,6 +92,9 @@ const Home: React.FC = () => {
     setWalletAddress(null);
     setBalance(null);
     setProvider(null);
+    // Remove wallet details from localStorage
+    localStorage.removeItem('walletAddress');
+    localStorage.removeItem('walletBalance');
   };
 
   // Format address for display
@@ -90,7 +107,7 @@ const Home: React.FC = () => {
         {walletAddress ? (
           <div className="flex items-center space-x-4">
             {/* Icon next to the address */}
-            <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} /> 
+            <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} />
             <span className="text-gray-700"><span className='text-xl'>Address:</span> {formatAddress(walletAddress)}</span>
             <span className="text-gray-700"><span className='text-xl'>Balance:</span>  {balance} HETH</span>
             <button onClick={disconnectWallet} className="bg-red-500 text-white px-4 py-2 rounded">
@@ -107,11 +124,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Token Swap Component or Connect Message */}
-     
-        <TokenSwap />
-      
-        
-     
+      <TokenSwap />
     </div>
   );
 };
