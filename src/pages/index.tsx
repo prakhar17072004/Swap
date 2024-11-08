@@ -105,11 +105,11 @@ const Home: React.FC = () => {
       {/* Wallet Connection Info in Top-Right Corner */}
       <div className="absolute top-4 right-4 flex items-center space-x-4">
         {walletAddress ? (
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-4 border-4 border-black p-4  rounded-lg">
             {/* Icon next to the address */}
             <FiUser className="text-gray-600 border-4 rounded-full p-3 border-green-400" size={20} />
-            <span className="text-gray-700"><span className='text-xl'>Address:</span> {formatAddress(walletAddress)}</span>
-            <span className="text-gray-700"><span className='text-xl'>Balance:</span>  {balance} HETH</span>
+            <span className="text-white outline"><span className='text-xl'>Address:</span> {formatAddress(walletAddress)}</span>
+            <span className="text-white"><span className='text-xl'>Balance:</span>  {balance} HETH</span>
             <button onClick={disconnectWallet} className="bg-red-500 text-white px-4 py-2 rounded">
               Disconnect
             </button>
