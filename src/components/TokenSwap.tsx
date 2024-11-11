@@ -121,7 +121,7 @@ const TokenSwap: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto p-4 bg-[#2B3162] rounded-lg shadow-lg">
-      <ToastContainer />
+      {/* <ToastContainer /> */}
       <h2 className="text-center text-3xl font-semibold mb-4 text-white">Token Swap</h2>
       <div className="flex flex-col justify-between items-center mb-4">
         <div className='flex flex-col border-2 border-slate-700 rounded-lg shadow-[#9747FF] shadow-md bg-[#131928]'>
