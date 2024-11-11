@@ -113,6 +113,7 @@ const TokenSwap: React.FC = () => {
         await transaction.wait();
         console.log("Swap successful");
         setSwapAmount('');
+        setCalculatedAmount('');
         setIsApproved(false);
         // Refresh balances after swap
         //fetchBalances();
