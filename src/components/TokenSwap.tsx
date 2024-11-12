@@ -71,26 +71,26 @@ const TokenSwap: React.FC = () => {
   };
 
   // Handle approval
-  // const handleApprove = async () => {
-  //   try {
-  //     const contractToApprove = isMtkToAnk ? mtkContract : ankContract;
-  //     if (!contractToApprove) throw new Error("Contract is not initialized");
+  const handleApprove = async () => {
+    try {
+      const contractToApprove = isMtkToAnk ? mtkContract : ankContract;
+      if (!contractToApprove) throw new Error("Contract is not initialized");
   
-  //     const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
-  //     const amountToApprove = ethers.parseUnits(swapAmount, 18); // Result is a bigint
+      const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
+      const amountToApprove = ethers.parseUnits(swapAmount, 18); // Result is a bigint
   
-  //     const currentAllowanceBN = ethers.parseUnits(currentAllowance, 18); // Result is a bigint
-  //     const extraAmount = amountToApprove - currentAllowanceBN; // Subtract as bigint
+      const currentAllowanceBN = ethers.parseUnits(currentAllowance, 18); // Result is a bigint
+      const extraAmount = amountToApprove - currentAllowanceBN; // Subtract as bigint
   
-  //     const transaction = await contractToApprove.approve(spenderAddress, extraAmount);
-  //     await transaction.wait();
-  //     setIsApproved(true);
-  //     setCurrentAllowance(swapAmount); // Update allowance
-  //     console.log("Approval successful for extra amount:", ethers.formatUnits(extraAmount, 18));
-  //   } catch (error) {
-  //     console.error("Error approving tokens:", error);
-  //   }
-  // };
+      const transaction = await contractToApprove.approve(spenderAddress, extraAmount);
+      await transaction.wait();
+      setIsApproved(true);
+      setCurrentAllowance(swapAmount); // Update allowance
+      console.log("Approval successful for extra amount:", ethers.formatUnits(extraAmount, 18));
+    } catch (error) {
+      console.error("Error approving tokens:", error);
+    }
+  };
 
 
 
