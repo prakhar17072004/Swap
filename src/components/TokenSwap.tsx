@@ -3,8 +3,6 @@ import { useWeb3 } from '../context/Web3Context';
 import { ethers } from 'ethers';
 import { CONTRACT_ADDRESSES } from '../contracts/addresses';
 import { CgArrowsExchangeAltV } from "react-icons/cg";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 const TokenSwap: React.FC = () => {
   const { swapContract, mtkContract, ankContract, account } = useWeb3();
@@ -17,6 +15,7 @@ const TokenSwap: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [currentAllowance, setCurrentAllowance] = useState<string>('0');
 
+  // Fetch balances and allowance
   useEffect(() => {
     const fetchBalances = async () => {
       if (mtkContract && ankContract && account) {
@@ -49,10 +48,12 @@ const TokenSwap: React.FC = () => {
     fetchAllowance();
   }, [mtkContract, ankContract, account, isMtkToAnk]);
 
+  // Handle input change
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSwapAmount(value);
 
+    // Calculate equivalent token amount (update logic based on actual swap calculation)
     const calculated = (parseFloat(value) || 0).toFixed(5);
     setCalculatedAmount(calculated);
 
@@ -61,6 +62,7 @@ const TokenSwap: React.FC = () => {
       setLoading(false);
     }, 1500);
 
+    // Check if approval is required
     if (parseFloat(value) > parseFloat(currentAllowance)) {
       setIsApproved(false);
     } else {
@@ -68,26 +70,31 @@ const TokenSwap: React.FC = () => {
     }
   };
 
-  const handleApprove = async () => {
-    try {
-      const contractToApprove = isMtkToAnk ? mtkContract : ankContract;
-      if (!contractToApprove) throw new Error("Contract is not initialized");
+  // Handle approval
+  // const handleApprove = async () => {
+  //   try {
+  //     const contractToApprove = isMtkToAnk ? mtkContract : ankContract;
+  //     if (!contractToApprove) throw new Error("Contract is not initialized");
   
-      const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
-      const amountToApprove = ethers.parseUnits(swapAmount, 18);
+  //     const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
+  //     const amountToApprove = ethers.parseUnits(swapAmount, 18); // Result is a bigint
   
-      const currentAllowanceBN = ethers.parseUnits(currentAllowance, 18);
-      const extraAmount = amountToApprove - currentAllowanceBN;
+  //     const currentAllowanceBN = ethers.parseUnits(currentAllowance, 18); // Result is a bigint
+  //     const extraAmount = amountToApprove - currentAllowanceBN; // Subtract as bigint
   
-      const transaction = await contractToApprove.approve(spenderAddress, extraAmount);
-      await transaction.wait();
-      setIsApproved(true);
-      setCurrentAllowance(swapAmount);
-      console.log("Approval successful for extra amount:", ethers.formatUnits(extraAmount, 18));
-    } catch (error) {
-      console.error("Error approving tokens:", error);
-    }
-  };
+  //     const transaction = await contractToApprove.approve(spenderAddress, extraAmount);
+  //     await transaction.wait();
+  //     setIsApproved(true);
+  //     setCurrentAllowance(swapAmount); // Update allowance
+  //     console.log("Approval successful for extra amount:", ethers.formatUnits(extraAmount, 18));
+  //   } catch (error) {
+  //     console.error("Error approving tokens:", error);
+  //   }
+  // };
+
+
+
+  
 
   const handleSwap = async () => {
     if (isApproved) {
@@ -105,27 +112,23 @@ const TokenSwap: React.FC = () => {
 
         await transaction.wait();
         console.log("Swap successful");
-
         setSwapAmount('');
         setCalculatedAmount('');
         setIsApproved(false);
-        
-        toast.success("Transaction successful!");
-
+        // Refresh balances after swap
+        //fetchBalances();
       } catch (error) {
         console.error("Error swapping tokens:", error);
-        toast.error("Transaction failed!");
       }
     }
   };
 
   return (
     <div className="max-w-md mx-auto p-4 bg-[#2B3162] rounded-lg shadow-lg">
-      {/* <ToastContainer /> */}
       <h2 className="text-center text-3xl font-semibold mb-4 text-white">Token Swap</h2>
       <div className="flex flex-col justify-between items-center mb-4">
         <div className='flex flex-col border-2 border-slate-700 rounded-lg shadow-[#9747FF] shadow-md bg-[#131928]'>
-          <span className='p-4 font-bold text-white rounded-lg'>{isMtkToAnk ? 'MTK' : 'ANK'} 
+          <span className='p-4 font-bold text-white  rounded-lg'>{isMtkToAnk ? 'MTK' : 'ANK'} 
             <input
               type="text"
               pattern='^[0-9]*[.,]?[0-9]*$'
@@ -136,7 +139,7 @@ const TokenSwap: React.FC = () => {
               placeholder="0"
             />
           </span>
-          <span className='text-white bg-[#131928] -mt-[24px] mb-4 ml-4 text-slate-400'>
+          <span className='text-white bg-[#131928] -mt-[24px] mb-4 ml-4  text-slate-400'>
             Balance: {isMtkToAnk ? mtkBalance : ankBalance}
           </span>
         </div>
@@ -145,7 +148,7 @@ const TokenSwap: React.FC = () => {
           <CgArrowsExchangeAltV />
         </button>
 
-        <div className='flex flex-col border-2 border-slate-700 text-white bg-[#131928] shadow-[#9747FF] shadow-md rounded-lg'>
+        <div className='flex flex-col  border-2 border-slate-700 text-white bg-[#131928] shadow-[#9747FF] shadow-md rounded-lg'>
           <span className='p-4 text-lg font-bold rounded-lg'>{isMtkToAnk ? 'ANK' : 'MTK'}
             <input
               type="text"
@@ -183,7 +186,7 @@ const TokenSwap: React.FC = () => {
         </button>
       ) : (
         <button onClick={handleSwap} className="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-          Swap {isMtkToAnk ? 'MTK to ANK' : 'ANK to MTK'}
+          Swap
         </button>
       )}
     </div>
