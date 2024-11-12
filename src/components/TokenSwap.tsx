@@ -30,19 +30,19 @@ const TokenSwap: React.FC = () => {
       }
     };
 
-    const fetchAllowance = async () => {
-      if (mtkContract && ankContract && account) {
-        try {
-          const contractToCheck = isMtkToAnk ? mtkContract : ankContract;
-          const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
+    // const fetchAllowance = async () => {
+    //   if (mtkContract && ankContract && account) {
+    //     try {
+    //       const contractToCheck = isMtkToAnk ? mtkContract : ankContract;
+    //       const spenderAddress = isMtkToAnk ? CONTRACT_ADDRESSES.ANK : CONTRACT_ADDRESSES.MTK;
 
-          const allowance = await contractToCheck.allowance(account, spenderAddress);
-          setCurrentAllowance(ethers.formatUnits(allowance, 18));
-        } catch (error) {
-          console.error("Error fetching allowance:", error);
-        }
-      }
-    };
+    //       const allowance = await contractToCheck.allowance(account, spenderAddress);
+    //       setCurrentAllowance(ethers.formatUnits(allowance, 18));
+    //     } catch (error) {
+    //       console.error("Error fetching allowance:", error);
+    //     }
+    //   }
+    // };
 
     fetchBalances();
     fetchAllowance();
